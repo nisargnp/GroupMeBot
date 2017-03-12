@@ -5,6 +5,7 @@
   "main": "app.js",
   "dependencies": {
     "body-parser": "^1.17.1",
+    "cron": "^1.2.1",
     "express": "^4.15.2",
     "mongodb": "^2.2.24",
     "monk": "^4.0.0"

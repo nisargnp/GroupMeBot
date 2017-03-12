@@ -1,6 +1,4 @@
 var cron = require('cron');
-var cronJob = cron.job("* * 23 * * *", function(){
-    // perform operation e.g. GET request http.get() etc.
-    console.info('cron job completed');
-}, undefined, true, "America/New_York");
-cronJob.start();
+new cron.CronJob('* * 23 * * *', function() {
+  console.log('You will see this message every second');
+}, null, true, 'America/New_York');

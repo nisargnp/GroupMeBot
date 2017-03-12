@@ -27,6 +27,41 @@ const collection = db.get("dude");
 
 // ---
 
+	collection.find({}).then((rows) => {
+
+		rows = rows.sort(function(a,b) {
+			return b.count - a.count;
+		});
+
+		var totalDudes = rows.reduce(function(acc, obj) {
+			return acc + obj.count;
+		}, 0);
+
+		sendToChat("Total Dudes for Today: " + totalDudes);
+
+		sendToChat("Leaderboards:\n" + 
+					"1st: " + rows[0].name + "\n" +
+					"2nd: " + rows[1].name + "\n" +
+					"3rd: " + rows[2].name)
+
+
+	});
+
+// display number of dudes at midnight
+new cron.CronJob('0 0 23 * * *', function() {
+
+
+	console.log('You will see this message every second');
+
+}, null, true, 'America/New_York');
+
+
+// say highnoon at noon
+new cron.CronJob('0 0 12 * * *', function() {
+  console.log('IT\'s HIGH NOON!');
+}, null, true, 'America/New_York');
+
+
 
 // ---
 
@@ -34,10 +69,10 @@ function sendToChat(text) {
 	request.post('https://api.groupme.com/v3/bots/post', {form:{'bot_id': bot_id, 'text': text}})
 }
 
-function updateDudes(id) {
+function updateDudes(id, name) {
 	collection.find({"id": id}, "count").then((rows) => {
 		if (rows.length == 0) {
-			collection.insert({"id": id, "count": 1});
+			collection.insert({"id": id, "name": name, "count": 1});
 		} else {
 			collection.update({"id": id}, {$set: {"count": rows[0].count + 1}});
 		}
@@ -67,7 +102,7 @@ app.post('/', function(req,res) {
 		if (body.includes("!dude")) {
 			dudesEcho(id, name);
 		} else if (body.includes("dude")) {
-			updateDudes(id);
+			updateDudes(id, name);
 		}
 
 	}

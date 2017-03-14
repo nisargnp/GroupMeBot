@@ -10,6 +10,7 @@ var cron = require("cron");
 var weather = require('weather-js')
 
 var bot_id = require("./bot_id")["bot_id"]
+var client_id = require("./bot_id")["client_id"]
 
 const url = "localhost:27017/narutodb"
 const db = monk(url)
@@ -111,6 +112,45 @@ function sendWeather() {
 	});
 }
 
+function getTwitchStatus(name) {
+	request.get(
+		{
+			'baseUrl': 'https://api.twitch.tv/kraken/',
+			'url': 'search/channels?query=' + name + '&limit=1', 
+			'headers': {
+				'Accept': 'Accept: application/vnd.twitchtv.v5+json',
+				'Client-ID': client_id
+			},
+			json: true
+		}, 
+		function(err, res, body) {
+			//console.log(body)
+			if (body.channels.length == 0)
+				return;
+
+			let id = body.channels[0]._id
+			request.get(
+			{
+				'baseUrl': 'https://api.twitch.tv/kraken/',
+				'url': 'streams/' + id, 
+				'headers': {
+					'Accept': 'Accept: application/vnd.twitchtv.v5+json',
+					'Client-ID': client_id
+				},
+				json: true
+			}, 
+			function(err, res, body) {
+				//console.log(body)
+				let msg = name + " is currently offline"
+				if (body.stream) {
+					msg = body.stream.channel.display_name + " is currently LIVE\nPlaying " + body.stream.game + " for " + body.stream.viewers + " viewers\n"+ body.stream.channel.url
+				}
+				sendToChat(msg);
+			});
+		}
+	);
+}
+
 function sendToChat(text) {
 	request.post('https://api.groupme.com/v3/bots/post', {form:{'bot_id': bot_id, 'text': text}})
 }
@@ -139,7 +179,6 @@ app.post('/', function(req,res) {
 
 	// 380883 is the sender id of the bot
 	if (req.body.sender_id != 380883) {
-
 		var body = req.body.text.toLowerCase();
 
 		var id = req.body.sender_id;
@@ -151,6 +190,11 @@ app.post('/', function(req,res) {
 			updateDudes(id, name);
 		} else if (body.includes("!weather")) {
 			sendWeather();
+		} else if (body.includes("!twitch")) {
+			let s = body.split(' ');
+			if (s[0] == '!twitch' && s.length == 2) {
+				getTwitchStatus(s[1]);
+			}
 		}
 
 	}

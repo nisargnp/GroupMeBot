@@ -8,7 +8,8 @@
     "cron": "^1.2.1",
     "express": "^4.15.2",
     "mongodb": "^2.2.24",
-    "monk": "^4.0.0"
+    "monk": "^4.0.0",
+    "weather-js": "^1.0.3"
   },
   "devDependencies": {},
   "scripts": {

@@ -1,13 +1,13 @@
 var express = require('express')
 var app = express()
 var request = require('request');
-
 var bodyParser = require('body-parser')
 
 var mongo = require('mongodb');
 var monk = require('monk');
 
 var cron = require("cron");
+var weather = require('weather-js')
 
 var bot_id = require("./bot_id")["bot_id"]
 
@@ -27,6 +27,9 @@ const collection = db.get("dude");
 
 // ---
 
+// display number of dudes at midnight
+new cron.CronJob('0 0 0 * * *', function() {
+
 	collection.find({}).then((rows) => {
 
 		rows = rows.sort(function(a,b) {
@@ -37,33 +40,76 @@ const collection = db.get("dude");
 			return acc + obj.count;
 		}, 0);
 
-		sendToChat("Total Dudes for Today: " + totalDudes);
+		sendToChat("Total Dudes: " + totalDudes);
 
 		sendToChat("Leaderboards:\n" + 
-					"1st: " + rows[0].name + "\n" +
-					"2nd: " + rows[1].name + "\n" +
-					"3rd: " + rows[2].name)
+					"1st: " + rows[0].name + " ~ " + rows[0].count + "\n" +
+					"2nd: " + rows[1].name + " ~ " + rows[1].count + "\n" +
+					"3rd: " + rows[2].name + " ~ " + rows[2].count);
 
 
 	});
-
-// display number of dudes at midnight
-new cron.CronJob('0 0 23 * * *', function() {
-
-
-	console.log('You will see this message every second');
 
 }, null, true, 'America/New_York');
 
 
 // say highnoon at noon
 new cron.CronJob('0 0 12 * * *', function() {
-  console.log('IT\'s HIGH NOON!');
+  sendToChat('IT\'S HIGH NOON!');
 }, null, true, 'America/New_York');
 
 
 
 // ---
+
+function sendWeather() {
+	weather.find({search: 'College Park, MD', degreeType: 'F'}, function(err, result) {
+		if (err) {
+			console.log(err);
+		} else {
+
+			var day = result[0].current.shortday;
+			var date = result[0].current.date;
+			var temp = result[0].current.temperature;
+			var sky = result[0].current.skytext;
+			var feelslike = result[0].current.feelslike;
+			var windspeed = result[0].current.windspeed;
+
+			// console.log(result[0])
+
+			var high_temp;
+			var low_temp;
+			var day_sky;
+
+			result[0].forecast.forEach(function(obj) {
+				if (obj.date == date) {
+					high_temp = obj.high;
+					low_temp = obj.low;
+					day_sky = obj.skytextday;
+				}
+			});
+
+
+			var output = "Forcast for " + day + ", " + date +":\n";
+
+			output += "\n";
+
+			output += "- Current Temp:        " + temp + "°F" + "\n";
+			output += "- Current Feelslike:   " + feelslike + "°F" + "\n";
+			output += "- Current Windspeed:   " + windspeed + "\n";
+			output += "- Current Forcast:     " + sky + "\n";
+			
+			output += "\n";
+
+			output += "- Today's Low Temp:    " + low_temp + "°F" + "\n";
+			output += "- Today's High Temp:   " + high_temp + "°F" + "\n";
+			output += "- Today's Forcast:     " + day_sky;
+
+			sendToChat(output);
+
+		}
+	});
+}
 
 function sendToChat(text) {
 	request.post('https://api.groupme.com/v3/bots/post', {form:{'bot_id': bot_id, 'text': text}})
@@ -103,6 +149,8 @@ app.post('/', function(req,res) {
 			dudesEcho(id, name);
 		} else if (body.includes("dude")) {
 			updateDudes(id, name);
+		} else if (body.includes("!weather")) {
+			sendWeather();
 		}
 
 	}

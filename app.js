@@ -128,7 +128,7 @@ function getTwitchStatus(name) {
 			if (body.channels.length == 0)
 				return;
 
-			let id = body.channels[0]._id
+			var id = body.channels[0]._id
 			request.get(
 			{
 				'baseUrl': 'https://api.twitch.tv/kraken/',
@@ -141,7 +141,7 @@ function getTwitchStatus(name) {
 			}, 
 			function(err, res, body) {
 				//console.log(body)
-				let msg = name + " is currently offline"
+				var msg = name + " is currently offline"
 				if (body.stream) {
 					msg = body.stream.channel.display_name + " is currently LIVE\nPlaying " + body.stream.game + " for " + body.stream.viewers + " viewers\n"+ body.stream.channel.url
 				}
@@ -191,7 +191,7 @@ app.post('/', function(req,res) {
 		} else if (body.includes("!weather")) {
 			sendWeather();
 		} else if (body.includes("!twitch")) {
-			let s = body.split(' ');
+			var s = body.split(' ');
 			if (s[0] == '!twitch' && s.length == 2) {
 				getTwitchStatus(s[1]);
 			}

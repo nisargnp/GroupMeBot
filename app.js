@@ -12,6 +12,11 @@ var weather = require('weather-js')
 var bot_id = require("./bot_id")["bot_id"]
 var client_id = require("./bot_id")["client_id"]
 
+var yt_key = require("./youtube_key")["yt_key"]
+var YouTube = require('youtube-node');
+var youtube = new YouTube();
+youtube.setKey(yt_key);
+
 const url = "localhost:27017/narutodb"
 const db = monk(url)
 
@@ -149,6 +154,18 @@ function getTwitchStatus(name) {
 			});
 		}
 	);
+}
+
+function searchYouTube(text) {
+	youTube.search(text, 1, function(error, result) {
+		if (error) {
+		  console.log(error);
+		}
+		else {
+		  var vidId = result.items[0].id.videoid
+		  sendToChat ("https://www.youtube.com/watch?v=" + vidId)
+		}
+	});
 }
 
 function sendToChat(text) {

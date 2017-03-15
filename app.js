@@ -212,6 +212,9 @@ app.post('/', function(req,res) {
 			if (s[0] == '!twitch' && s.length == 2) {
 				getTwitchStatus(s[1]);
 			}
+		} else if (/^!youtube (.*)/.test(body))
+			var s = RegExp.$1;
+			searchYouTube(s);
 		}
 
 	}

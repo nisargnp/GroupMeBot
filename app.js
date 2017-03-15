@@ -1,39 +1,49 @@
+// GroupMeBot
+
+// import needed keys
+var bot_id = require("./bot_id")["bot_id"]
+var client_id = require("./bot_id")["client_id"]
+
+// express import
 var express = require('express')
 var app = express()
 var request = require('request');
 var bodyParser = require('body-parser')
 
+// mongodb import
 var mongo = require('mongodb');
 var monk = require('monk');
 
+// cron import
 var cron = require("cron");
+
+// weather import
 var weather = require('weather-js')
 
-var bot_id = require("./bot_id")["bot_id"]
-var client_id = require("./bot_id")["client_id"]
-
+// youtube import
 var yt_key = require("./youtube_key")["yt_key"]
 var YouTube = require('youtube-node');
 var youtube = new YouTube();
 youtube.setKey(yt_key);
 
-const url = "localhost:27017/narutodb"
-const db = monk(url)
-
-db.then(() => {
-	console.log("Connected to mongodb server.")
-});
-
+// set up express
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({
 	extended: true
 }));
 
+// set up mongo
+const url = "localhost:27017/narutodb"
+const db = monk(url)
+db.then(() => {
+	console.log("Connected to mongodb server.")
+});
+
 const collection = db.get("dude");
 
-// ---
+// --- --- ---
 
-// display number of dudes at midnight
+// display dude leaderboards at midnight
 new cron.CronJob('0 0 0 * * *', function() {
 
 	collection.find({}).then((rows) => {
@@ -58,16 +68,14 @@ new cron.CronJob('0 0 0 * * *', function() {
 
 }, null, true, 'America/New_York');
 
-
 // say highnoon at noon
 new cron.CronJob('0 0 12 * * *', function() {
   sendToChat('IT\'S HIGH NOON!');
 }, null, true, 'America/New_York');
 
+// --- --- ---
 
-
-// ---
-
+// report the current weather along with weather forcast for that day to chat
 function sendWeather() {
 	weather.find({search: 'College Park, MD', degreeType: 'F'}, function(err, result) {
 		if (err) {
@@ -117,6 +125,7 @@ function sendWeather() {
 	});
 }
 
+// determine if twitch.tv streamer is online
 function getTwitchStatus(name) {
 	request.get(
 		{
@@ -156,6 +165,7 @@ function getTwitchStatus(name) {
 	);
 }
 
+// search for a youtube video, send first one to chat
 function searchYouTube(text) {
 	youtube.search(text, 1, function(error, result) {
 		if (error) {
@@ -168,10 +178,12 @@ function searchYouTube(text) {
 	});
 }
 
+// send text to groupme chat
 function sendToChat(text) {
 	request.post('https://api.groupme.com/v3/bots/post', {form:{'bot_id': bot_id, 'text': text}})
 }
 
+// update the count of dudes
 function updateDudes(id, name) {
 	collection.find({"id": id}, "count").then((rows) => {
 		if (rows.length == 0) {
@@ -182,20 +194,19 @@ function updateDudes(id, name) {
 	});
 }
 
+// send the count of dudes for the particular user
 function dudesEcho(id, name) {
 	collection.find({"id": id}, "count").then((rows) => {
 		sendToChat("Dude count for " + name + ": " + rows[0].count);
 	});
 }
 
-app.get('/', function(req,res) {
-	res.send("Hello, World!");
-})
-
+// handle post request from groupme
 app.post('/', function(req,res) {
 
 	// 380883 is the sender id of the bot
 	if (req.body.sender_id != 380883) {
+
 		var body = req.body.text.toLowerCase();
 
 		var id = req.body.sender_id;
@@ -216,12 +227,14 @@ app.post('/', function(req,res) {
 			var s = RegExp.$1;
 			searchYouTube(s);
 		}
+
 	}
 
 	res.send("Success");
 
 })
 
+// start the server
 app.listen(3000, function() {
 	console.log('Listening on PORT 3000');
 })

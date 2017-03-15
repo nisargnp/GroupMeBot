@@ -12,9 +12,10 @@ var weather = require('weather-js')
 var bot_id = require("./bot_id")["bot_id"]
 var client_id = require("./bot_id")["client_id"]
 
+var yt_key = require("./youtube_key")["yt_key"]
 var YouTube = require('youtube-node');
 var youtube = new YouTube();
-youtube.setKey('insertayoutubeapikey...lol');
+youtube.setKey(yt_key);
 
 const url = "localhost:27017/narutodb"
 const db = monk(url)

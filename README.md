@@ -3,7 +3,10 @@ A small bot created with NodeJS for our personal GroupMe Chat.
 
 ## Features
 - Count the number of times certain words are said in chat.
-- Display the weather with asked to.
+- Display the weather forecast.
+- Display the current phase of the moon.
+- Display Twitch channel status (online vs offline).
+- Retrieve a video from YouTube and display it.
 
 ## Contributers
 - [Nisarg Patel](https://github.com/nisargnp)

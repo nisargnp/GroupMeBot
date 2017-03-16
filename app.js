@@ -130,7 +130,7 @@ function sendWeather(group_id) {
 			output += "- Current Temp: " + temp + "°F" + "\n";
 			output += "- Current Feelslike: " + feelslike + "°F" + "\n";
 			output += "- Current Windspeed: " + windspeed + "\n";
-			output += "- Current Forcast: " + sky + "\n";
+			output += "- Current Forecast: " + sky + "\n";
 			
 			output += "\n";
 

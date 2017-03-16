@@ -1,18 +1,18 @@
 // GroupMeBot
 
 // import needed keys
-var bot_ids = require("./protected_info").bot_ids;
-var client_id = require("./protected_info").client_id;
-var bots_list = require("./protected_info").bots_list;
-var mr_robot_chat = require("./protected_info").mr_robot_chat;
-var naruto_chat = require("./protected_info").naruto_chat;
-var yt_key = require("./protected_info").yt_key;
+var bot_ids = require("./protected_info").bot_ids
+var client_id = require("./protected_info").client_id
+var bots_list = require("./protected_info").bots_list
+var mr_robot_chat = require("./protected_info").mr_robot_chat
+var naruto_chat = require("./protected_info").naruto_chat
+var yt_key = require("./protected_info").yt_key
 
 // express import
-var express = require('express');
-var app = express();
+var express = require('express')
+var app = express()
 var request = require('request');
-var bodyParser = require('body-parser');
+var bodyParser = require('body-parser')
 
 // mongodb import
 var mongo = require('mongodb');
@@ -130,7 +130,7 @@ function sendWeather(group_id) {
 			output += "- Current Temp: " + temp + "°F" + "\n";
 			output += "- Current Feelslike: " + feelslike + "°F" + "\n";
 			output += "- Current Windspeed: " + windspeed + "\n";
-			output += "- Current Forecast: " + sky + "\n";
+			output += "- Current Forcast: " + sky + "\n";
 			
 			output += "\n";
 
@@ -226,11 +226,17 @@ function sendDudes(group_id, sender_id, name) {
 // handle post request from groupme
 app.post('/', function(req,res) {
 
+	console.log(req.body);
+	console.log("\n");
+
 	// get the sender's id
-	var sender_id = parseInt(req.body.sender_id);
+	// var sender_id = parseInt(req.body.sender_id);
+
+	// get sender's type
+	var sender_type = req.body.sender_type;
 
 	// don't reply to messages from bots
-	if (bots_list.indexOf(sender_id) === -1) {
+	if (sender_type === "user") {
 
 		var text = req.body.text.toLowerCase();
 		var sender_id = req.body.sender_id;

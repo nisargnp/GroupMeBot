@@ -9,6 +9,7 @@
     "express": "^4.15.2",
     "mongodb": "^2.2.24",
     "monk": "^4.0.0",
+    "moonmoji": "^1.1.9",
     "weather-js": "^1.0.3",
     "youtube-node": "^1.3.0"
   },

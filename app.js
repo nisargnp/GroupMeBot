@@ -3,7 +3,6 @@
 // import needed keys
 var bot_ids = require("./protected_info").bot_ids
 var client_id = require("./protected_info").client_id
-var bots_list = require("./protected_info").bots_list
 var mr_robot_chat = require("./protected_info").mr_robot_chat
 var naruto_chat = require("./protected_info").naruto_chat
 var yt_key = require("./protected_info").yt_key

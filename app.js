@@ -188,12 +188,34 @@ function getTwitchStatus(group_id, name) {
 // search for a youtube video, send first one to chat
 function searchYouTube(group_id, text) {
 	youtube.search(text, 1, function(error, result) {
+
 		if (error) {
-		  console.log(error);
+
+			console.log(error);
+
 		} else {
-		  var vidId = result.items[0].id.videoId
-		  sendToChat (group_id, "https://www.youtube.com/watch?v=" + vidId)
+
+			if (result.items.length === 0) {
+
+				sendToChat(group_id, "No results for " + text);
+
+			} else {
+
+				var yt_url;
+
+				var videoId = result.items[0].id.videoId;
+				if (videoId != undefined) {
+					yt_url = "https://www.youtube.com/watch?v=" + videoId;
+				} else {
+					yt_url = "https://www.youtube.com/channel/" + result.items[0].id.channelId;
+				}
+
+				sendToChat(group_id, yt_url);
+			
+			}
+
 		}
+
 	});
 }
 

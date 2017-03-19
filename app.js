@@ -17,6 +17,12 @@ var bodyParser = require('body-parser')
 var mongo = require('mongodb');
 var monk = require('monk');
 
+// sqlite import
+var sqlite3 = require('sqlite3').verbose();
+var sqliteDB = new sqlite3.Database('./umd_data/test.db');
+var semester = "Spring 2017";
+var tableName = "professors_spring2017";
+
 // cron import
 var cron = require("cron");
 
@@ -185,6 +191,63 @@ function getTwitchStatus(group_id, name) {
 	);
 }
 
+// Get data above what classes a professor is teaching
+function getProf(group_id, first, last) {
+	if (/^[a-zA-Z\-]*$/.test(first) == false || /^[a-zA-Z\-]*$/.test(last) == false)
+		return;
+
+	var stmt = "";
+	if (first)
+		stmt = "SELECT * FROM " + tableName + " WHERE first_name = \"" + first + "\" COLLATE NOCASE AND last_name = \"" + last + "\" COLLATE NOCASE;"
+	else
+		stmt = "SELECT * FROM " + tableName + " WHERE last_name = \"" + last + "\" COLLATE NOCASE;"	
+
+	var data = [];
+	var msg = "";
+	sqliteDB.serialize(function () {
+		sqliteDB.each(stmt, 
+			function (err, row) {
+				// callback after each row is fetched
+				if (!err) {
+					data.push({first: row.first_name, last: row.last_name, classes: row.courses});
+				}
+			},
+			function (err, count) {
+				// callback after entire statement finished
+				if (!err) {
+					if (count > 0) {
+						msg = "Professor " + data[0].first + " " + data[0].last + " is teaching: \n" +
+							data[0].classes.replace(/,/g, ", ") + "\n" +
+							"for the " + semester + " semester.";
+					} 
+					else {
+						msg = "No info for Professor " + first + " " + last + " was found."
+					}
+					console.log(msg);
+				}
+			}
+		);
+	});
+	sendToChat(group_id, msg);
+}
+
+// Change semester for the umd related commands
+function setSemester(group_id, newSemester) {
+	var msg = "";
+	console.log(newSemester);
+	if (/^(spring|fall) (2016|2017)$/.test(newSemester)) {
+		// set globals
+		semester = newSemester;
+		tableName = "professors_" + newSemester.replace(" ", "");
+
+		msg = "Semester changed to " + newSemester;
+	} else {
+		msg = "Invalid semester name. Currently accepted Semester names are: \n" +
+			"Spring 2016, Fall 2016, Spring 2017, Fall 2017";
+	}
+	sendToChat(group_id, msg);
+}
+
 // search for a youtube video, send first one to chat
 function searchYouTube(group_id, text) {
 	youtube.search(text, 1, function(error, result) {
@@ -297,6 +360,31 @@ app.post('/', function(req,res) {
 
 				sendMoon(group_id);
 
+			} else if (text.includes("!prof")) {
+				
+				var s = text.split(" ");
+				if (s.length > 1 && s[0] == "!prof") {
+					var firstName = null;
+					var lastName = null;
+
+					if (s.length > 2) {
+						firstName = s[1];
+						s.splice(0, 2);
+						lastName = s.join(" ");
+					} 
+					else {
+						lastName = s[1];	
+					}
+
+					getProf(group_id, firstName, lastName);
+				}
+
+			} else if (text.includes("!semester")) {
+				
+				var s = text.split(" ");
+				if (s[0] == "!semester")
+					setSemester(group_id, text.toLowerCase().substring(10));
+
 			}
 		
 		}
@@ -305,7 +393,13 @@ app.post('/', function(req,res) {
 
 	res.send("Success.");
 
-})
+});
+
+// cleanup on CTRL-C
+process.on('SIGINT', function() {
+	sqliteDB.close();
+	process.exit();
+});
 
 // start the server
 app.listen(3000, function() {

@@ -221,14 +221,13 @@ function getProf(group_id, first, last) {
 							"for the " + semester + " semester.";
 					} 
 					else {
-						msg = "No info for Professor " + first + " " + last + " was found."
+						msg = "No info for Professor" + (first ? " " + first : "") + " " + last + " was found."
 					}
-					console.log(msg);
+					sendToChat(group_id, msg);
 				}
 			}
 		);
 	});
-	sendToChat(group_id, msg);
 }
 
 // Change semester for the umd related commands

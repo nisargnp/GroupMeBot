@@ -6,7 +6,8 @@ A small bot created with NodeJS for our personal GroupMe Chat.
 - Display the weather forecast.
 - Display the current phase of the moon.
 - Display Twitch channel status (online vs offline).
-- Retrieve a video from YouTube and display it.
+- Retrieve a video from YouTube and display it.  
+- See which classes a UMD professor is teaching during a specified semester.  
 
 ## Contributers
 - [Nisarg Patel](https://github.com/nisargnp)

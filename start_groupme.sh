@@ -1,1 +1,1 @@
-npm start &>> ../groupme-debug.log &
+node app.js &>> ../groupme-debug.log &

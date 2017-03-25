@@ -45,9 +45,9 @@ const collection = db.get("dude");
 
 // --- --- ---
 
-// display dude leaderboards at midnight on Friday and Monday
+// display dude leaderboards at midnight on Saturday and Tuesday
 var cronDudes = new CronJob({
-	cronTime: '0 0 0 * * Saturday,Tuesday',
+	cronTime: '0 0 0 * * 6,2',
 	onTick: function() {
 		var group_id = naruto_chat;
 

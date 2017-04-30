@@ -25,7 +25,7 @@ app.use(bodyParser.urlencoded({
 
 
 // start cronjobs
-operations.cronDudes.start();
+// operations.cronDudes.start();
 // operations.cronNoon.start();
 
 
